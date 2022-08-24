@@ -374,29 +374,29 @@ find_package(Threads REQUIRED)
 target_link_libraries(leveldb Threads::Threads -lpthread)
 target_link_libraries(leveldb ibverbs event fmt)
 
-add_executable(nova_server_main "novalsm/nova_server_main.cpp")
-target_link_libraries(nova_server_main ${GFLAGS} leveldb)
+# add_executable(nova_server_main "novalsm/nova_server_main.cpp")
+# target_link_libraries(nova_server_main ${GFLAGS} leveldb)
 
-add_executable(file_reader "novalsm/file_reader.cpp")
-target_link_libraries(file_reader -lgflags leveldb)
+# add_executable(file_reader "novalsm/file_reader.cpp")
+# target_link_libraries(file_reader -lgflags leveldb)
 
 add_executable(nova_server_main_debug "novalsm/nova_server_main.cpp")
 target_link_libraries(nova_server_main_debug -lgflags leveldb -pg)
 
-add_executable(nova_subrange_sim "novalsm/nova_subrange_sim_test.cpp")
-target_link_libraries(nova_subrange_sim -lgflags leveldb -pg)
+# add_executable(nova_subrange_sim "novalsm/nova_subrange_sim_test.cpp")
+# target_link_libraries(nova_subrange_sim -lgflags leveldb -pg)
 
-add_executable(scatter_bench "benchmarks/scatter_bench.cpp")
-target_link_libraries(scatter_bench -lgflags leveldb)
+# add_executable(scatter_bench "benchmarks/scatter_bench.cpp")
+# target_link_libraries(scatter_bench -lgflags leveldb)
 
-add_executable(memtable_bench "bench_memtable/memtable_bench.cpp")
-target_link_libraries(memtable_bench -lgflags leveldb)
+# add_executable(memtable_bench "bench_memtable/memtable_bench.cpp")
+# target_link_libraries(memtable_bench -lgflags leveldb)
 
-add_executable(version_set_test "db/version_set_test.cc")
-target_link_libraries(version_set_test -lgflags leveldb)
+# add_executable(version_set_test "db/version_set_test.cc")
+# target_link_libraries(version_set_test -lgflags leveldb)
 
-add_executable(bloom_test "util/bloom_test.cc")
-target_link_libraries(bloom_test -lgflags leveldb)
+# add_executable(bloom_test "util/bloom_test.cc")
+# target_link_libraries(bloom_test -lgflags leveldb)
 
-add_executable(filter_block_test "table/filter_block_test.cc")
-target_link_libraries(filter_block_test -lgflags leveldb)
+# add_executable(filter_block_test "table/filter_block_test.cc")
+# target_link_libraries(filter_block_test -lgflags leveldb)
