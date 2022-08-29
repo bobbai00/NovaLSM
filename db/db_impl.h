@@ -37,7 +37,8 @@
 
 #include "log/log_recovery.h"
 
-namespace leveldb {
+namespace leveldb
+{
 
     class MemTable;
 
@@ -49,7 +50,8 @@ namespace leveldb {
 
     class VersionSet;
 
-    class DBImpl : public DB {
+    class DBImpl : public DB
+    {
     public:
         DBImpl(const Options &options, const std::string &dbname);
 
@@ -116,9 +118,9 @@ namespace leveldb {
 
         Status
         RecoverLogFile(
-                const std::unordered_map<std::string, uint64_t> &logfile_buf,
-                uint32_t *recovered_log_records,
-                timeval *rdma_read_complete);
+            const std::unordered_map<std::string, uint64_t> &logfile_buf,
+            uint32_t *recovered_log_records,
+            timeval *rdma_read_complete);
 
         void
         CoordinateMajorCompaction() override;
@@ -153,20 +155,20 @@ namespace leveldb {
                           std::unordered_map<uint32_t, leveldb::MemTableLogFilePair> *mid_table_map);
 
         void ScheduleFlushMemTableTask(
-                int thread_id,
-                uint32_t memtable_id,
-                MemTable *imm,
-                uint32_t partition_id, uint32_t imm_slot,
-                unsigned int *rand_seed, bool merge_memtables_without_flushing);
+            int thread_id,
+            uint32_t memtable_id,
+            MemTable *imm,
+            uint32_t partition_id, uint32_t imm_slot,
+            unsigned int *rand_seed, bool merge_memtables_without_flushing);
 
-        const Options options_;  // options_.comparator == &internal_comparator_
+        const Options options_; // options_.comparator == &internal_comparator_
         nova::StoCInMemoryLogFileManager *log_manager_ = nullptr;
         std::vector<EnvBGThread *> bg_flush_memtable_threads_;
 
         void ScheduleFileDeletionTask();
 
         void UpdateFileMetaReplicaLocations(
-                const std::vector<leveldb::ReplicationPair> &results, uint32_t stoc_server_id, int level, StoCClient* client) override ;
+            const std::vector<leveldb::ReplicationPair> &results, uint32_t stoc_server_id, int level, StoCClient *client) override;
 
         std::atomic_bool is_loading_db_;
 
@@ -199,12 +201,13 @@ namespace leveldb {
                                 bool *delete_due_to_low_overlap,
                                 std::unordered_map<uint32_t, leveldb::MemTableL0FilesEdit> *memtableid_l0fns);
 
-        class NovaCCRecoveryThread {
+        class NovaCCRecoveryThread
+        {
         public:
             NovaCCRecoveryThread(
-                    uint32_t client_id,
-                    std::vector<leveldb::MemTable *> memtables,
-                    MemManager *mem_manager);
+                uint32_t client_id,
+                std::vector<leveldb::MemTable *> memtables,
+                MemManager *mem_manager);
 
             void Recover();
 
@@ -215,6 +218,7 @@ namespace leveldb {
             uint64_t max_sequence_number = 0;
 
             std::vector<char *> log_replicas_;
+
         private:
             std::vector<leveldb::MemTable *> memtables_;
             uint32_t client_id_ = 0;
@@ -230,10 +234,10 @@ namespace leveldb {
                                             bool prune_memtable);
 
         bool CompactMultipleMemTablesStaticPartitionToMemTable(
-                int partition_id,
-                EnvBGThread *bg_thread,
-                const std::vector<EnvBGTask> &tasks,
-                std::vector<uint32_t> *closed_memtable_log_files);
+            int partition_id,
+            EnvBGThread *bg_thread,
+            const std::vector<EnvBGTask> &tasks,
+            std::vector<uint32_t> *closed_memtable_log_files);
 
         friend class DB;
 
@@ -244,12 +248,13 @@ namespace leveldb {
         void StealMemTable(const WriteOptions &options);
 
         // Information for a manual compaction
-        struct ManualCompaction {
+        struct ManualCompaction
+        {
             int level;
             bool done;
-            const InternalKey *begin;  // null means beginning of key range
-            const InternalKey *end;    // null means end of key range
-            InternalKey tmp_storage;   // Used to keep track of compaction progress
+            const InternalKey *begin; // null means beginning of key range
+            const InternalKey *end;   // null means end of key range
+            InternalKey tmp_storage;  // Used to keep track of compaction progress
         };
 
         Iterator *NewInternalIterator(const ReadOptions &,
@@ -292,7 +297,8 @@ namespace leveldb {
         Status
         InstallCompactionResults(CompactionState *compact, VersionEdit *edit, int target_level);
 
-        const Comparator *user_comparator() const {
+        const Comparator *user_comparator() const
+        {
             return internal_comparator_.user_comparator();
         }
 
@@ -343,9 +349,9 @@ namespace leveldb {
         std::vector<AtomicMemTable *> active_memtables_;
         // partitioned memtables.
         std::vector<MemTablePartition *> partitioned_active_memtables_ GUARDED_BY(mutex_);
-        std::vector<uint32_t> partitioned_imms_ GUARDED_BY(mutex_);  // Memtable being compacted
+        std::vector<uint32_t> partitioned_imms_ GUARDED_BY(mutex_); // Memtable being compacted
 
-        uint32_t seed_ GUARDED_BY(mutex_);  // For sampling.
+        uint32_t seed_ GUARDED_BY(mutex_); // For sampling.
 
         SnapshotList snapshots_ GUARDED_BY(mutex_);
 
@@ -364,7 +370,7 @@ namespace leveldb {
         Status bg_error_ GUARDED_BY(mutex_);
 
         std::string current_log_file_name_ GUARDED_BY(mutex_);
-        std::vector<uint32_t> closed_memtable_log_files_  GUARDED_BY(range_lock_);
+        std::vector<uint32_t> closed_memtable_log_files_ GUARDED_BY(range_lock_);
 
         bool WriteStaticPartition(const leveldb::WriteOptions &options,
                                   const leveldb::Slice &key,
@@ -377,13 +383,13 @@ namespace leveldb {
         unsigned int rand_seed_ = 0;
     };
 
-// Sanitize db options.  The caller should delete result.info_log if
-// it is not equal to src.info_log.
+    // Sanitize db options.  The caller should delete result.info_log if
+    // it is not equal to src.info_log.
     Options SanitizeOptions(const std::string &db,
                             const InternalKeyComparator *icmp,
                             const InternalFilterPolicy *ipolicy,
                             const Options &src);
 
-}  // namespace leveldb
+} // namespace leveldb
 
-#endif  // STORAGE_LEVELDB_DB_DB_IMPL_H_
+#endif // STORAGE_LEVELDB_DB_DB_IMPL_H_

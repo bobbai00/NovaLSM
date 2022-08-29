@@ -1,6 +1,6 @@
 #!/bin/bash
-home_dir="/proj/bg-PG0/haoyu"
-# home_dir="/proj/BG/haoyu"
+home_dir="/proj/bg-PG0/bobbai"
+# home_dir="/proj/BG/bobbai"
 config_dir="$home_dir/config"
 db_dir="$home_dir/db"
 script_dir="$home_dir/scripts"
@@ -21,7 +21,7 @@ nclients="6"
 maxexecutiontime=300
 workload="workloadc"
 nthreads="16"
-debug="false"
+debug="true"
 dist="zipfian"
 cardinality="0"
 value_size="4096"
@@ -86,7 +86,7 @@ function run_bench() {
 	n=0
 	while [ $n -lt $nclients ]
 	do
-		id=$((nmachines-1-i))
+		id=$((i))
 		# if [[ $id == "9" ]]; then
 		# 	i=$((i+1))
 		# 	continue	
@@ -328,15 +328,14 @@ cc_nranges_per_server="1"
 
 number_of_ltcs="1"
 nclients="1"
-nservers="6"
-level="6"
-nmachines="7"
+level="2"
+nmachines="2"
 
 exp_seconds_to_fail_stoc="-1"
 fail_stoc_id="-1"
 
-number_of_ltcs="3"
-nservers="6"
+number_of_ltcs="1"
+nservers="2"
 num_memtable_partitions="64"
 dist="uniform"
 num_sstable_replicas="1"

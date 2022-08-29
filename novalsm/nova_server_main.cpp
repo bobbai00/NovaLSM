@@ -4,7 +4,6 @@
 // Copyright (c) 2019 University of Southern California. All rights reserved.
 // NovaLSM main class.
 
-
 #include "rdma/rdma_ctrl.hpp"
 #include "common/nova_common.h"
 #include "common/nova_config.h"
@@ -24,6 +23,7 @@
 using namespace std;
 using namespace rdmaio;
 using namespace nova;
+using namespace GFLAGS_NAMESPACE;
 
 DEFINE_string(db_path, "/tmp/db", "level db path");
 DEFINE_string(stoc_files_path, "/tmp/stoc", "StoC files path");
@@ -141,29 +141,33 @@ std::unordered_map<uint64_t, leveldb::FileMetaData *> leveldb::Version::last_fnf
 std::atomic<nova::Servers *> leveldb::StorageSelector::available_stoc_servers;
 NovaGlobalVariables NovaGlobalVariables::global;
 
-void StartServer() {
+void StartServer()
+{
     RdmaCtrl *rdma_ctrl = new RdmaCtrl(NovaConfig::config->my_server_id,
                                        NovaConfig::config->rdma_port);
-//    if (NovaConfig::config->my_server_id < FLAGS_number_of_ltcs) {
-//        NovaConfig::config->mem_pool_size_gb = 10;
-//    }
+    //    if (NovaConfig::config->my_server_id < FLAGS_number_of_ltcs) {
+    //        NovaConfig::config->mem_pool_size_gb = 10;
+    //    }
     int port = NovaConfig::config->servers[NovaConfig::config->my_server_id].port;
     uint64_t nrdmatotal = nrdma_buf_server();
     uint64_t ntotal = nrdmatotal;
     ntotal += NovaConfig::config->mem_pool_size_gb * 1024 * 1024 * 1024;
     NOVA_LOG(INFO) << "Allocated buffer size in bytes: " << ntotal;
 
-    auto *buf = (char *) malloc(ntotal);
+    auto *buf = (char *)malloc(ntotal);
     memset(buf, 0, ntotal);
     NovaConfig::config->nova_buf = buf;
     NovaConfig::config->nnovabuf = ntotal;
     NOVA_ASSERT(buf != NULL) << "Not enough memory";
 
-    if (!FLAGS_recover_dbs) {
+    if (!FLAGS_recover_dbs)
+    {
         int ret = system(fmt::format("exec rm -rf {}/*",
-                           NovaConfig::config->db_path).data());
+                                     NovaConfig::config->db_path)
+                             .data());
         ret = system(fmt::format("exec rm -rf {}/*",
-                           NovaConfig::config->stoc_files_path).data());
+                                 NovaConfig::config->stoc_files_path)
+                         .data());
     }
     mkdirs(NovaConfig::config->stoc_files_path.data());
     mkdirs(NovaConfig::config->db_path.data());
@@ -171,21 +175,25 @@ void StartServer() {
     mem_server->Start();
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     gflags::ParseCommandLineFlags(&argc, &argv, true);
     int i;
     const char **methods = event_get_supported_methods();
     printf("Starting Libevent %s.  Available methods are:\n",
            event_get_version());
-    for (i = 0; methods[i] != NULL; ++i) {
+    for (i = 0; methods[i] != NULL; ++i)
+    {
         printf("    %s\n", methods[i]);
     }
-    if (FLAGS_server_id == -1) {
+    if (FLAGS_server_id == -1)
+    {
         exit(0);
     }
     std::vector<gflags::CommandLineFlagInfo> flags;
     gflags::GetAllFlags(&flags);
-    for (const auto &flag : flags) {
+    for (const auto &flag : flags)
+    {
         printf("%s=%s\n", flag.name.c_str(),
                flag.current_value.c_str());
     }
@@ -238,22 +246,34 @@ int main(int argc, char *argv[]) {
     NovaConfig::config->use_local_disk = FLAGS_use_local_disk;
     NovaConfig::config->num_tinyranges_per_subrange = FLAGS_num_tinyranges_per_subrange;
 
-    if (FLAGS_scatter_policy == "random") {
+    if (FLAGS_scatter_policy == "random")
+    {
         NovaConfig::config->scatter_policy = ScatterPolicy::RANDOM;
-    } else if (FLAGS_scatter_policy == "power_of_two") {
+    }
+    else if (FLAGS_scatter_policy == "power_of_two")
+    {
         NovaConfig::config->scatter_policy = ScatterPolicy::POWER_OF_TWO;
-    } else if (FLAGS_scatter_policy == "power_of_three") {
+    }
+    else if (FLAGS_scatter_policy == "power_of_three")
+    {
         NovaConfig::config->scatter_policy = ScatterPolicy::POWER_OF_THREE;
-    } else if (FLAGS_scatter_policy == "local") {
+    }
+    else if (FLAGS_scatter_policy == "local")
+    {
         NovaConfig::config->scatter_policy = ScatterPolicy::LOCAL;
         NOVA_ASSERT(NovaConfig::config->num_stocs_scatter_data_blocks == 1);
-    } else {
+    }
+    else
+    {
         NovaConfig::config->scatter_policy = ScatterPolicy::SCATTER_DC_STATS;
     }
 
-    if (FLAGS_log_record_mode == "none") {
+    if (FLAGS_log_record_mode == "none")
+    {
         NovaConfig::config->log_record_mode = NovaLogRecordMode::LOG_NONE;
-    } else if (FLAGS_log_record_mode == "rdma") {
+    }
+    else if (FLAGS_log_record_mode == "rdma")
+    {
         NovaConfig::config->log_record_mode = NovaLogRecordMode::LOG_RDMA;
     }
 
@@ -272,21 +292,27 @@ int main(int argc, char *argv[]) {
     NovaConfig::config->num_migration_threads = FLAGS_num_migration_threads;
     NovaConfig::config->use_ordered_flush = FLAGS_use_ordered_flush;
 
-    if (FLAGS_ltc_migration_policy == "immediate") {
+    if (FLAGS_ltc_migration_policy == "immediate")
+    {
         NovaConfig::config->ltc_migration_policy = LTCMigrationPolicy::IMMEDIATE;
-    } else {
+    }
+    else
+    {
         NovaConfig::config->ltc_migration_policy = LTCMigrationPolicy::PROCESS_UNTIL_MIGRATION_COMPLETE;
     }
 
     NovaConfig::ReadFragments(FLAGS_ltc_config_path);
-    if (FLAGS_num_log_replicas > 0) {
-        for (int i = 0; i < NovaConfig::config->cfgs.size(); i++) {
+    if (FLAGS_num_log_replicas > 0)
+    {
+        for (int i = 0; i < NovaConfig::config->cfgs.size(); i++)
+        {
             NOVA_ASSERT(FLAGS_num_log_replicas <= NovaConfig::config->cfgs[i]->stoc_servers.size());
         }
         NovaConfig::ComputeLogReplicaLocations(FLAGS_num_log_replicas);
     }
     NOVA_LOG(INFO) << fmt::format("{} configurations", NovaConfig::config->cfgs.size());
-    for (auto c : NovaConfig::config->cfgs) {
+    for (auto c : NovaConfig::config->cfgs)
+    {
         NOVA_LOG(INFO) << c->DebugString();
     }
 
@@ -301,34 +327,38 @@ int main(int argc, char *argv[]) {
     nova::NovaGlobalVariables::global.Initialize();
     auto available_stoc_servers = new Servers;
     available_stoc_servers->servers = NovaConfig::config->cfgs[0]->stoc_servers;
-    for (int i = 0; i < available_stoc_servers->servers.size(); i++) {
+    for (int i = 0; i < available_stoc_servers->servers.size(); i++)
+    {
         available_stoc_servers->server_ids.insert(available_stoc_servers->servers[i]);
     }
     leveldb::StorageSelector::available_stoc_servers.store(available_stoc_servers);
 
     // Sanity checks.
-    if (NovaConfig::config->number_of_sstable_data_replicas > 1) {
+    if (NovaConfig::config->number_of_sstable_data_replicas > 1)
+    {
         NOVA_ASSERT(NovaConfig::config->number_of_sstable_data_replicas ==
                     NovaConfig::config->number_of_sstable_metadata_replicas);
         NOVA_ASSERT(NovaConfig::config->num_stocs_scatter_data_blocks == 1);
         NOVA_ASSERT(!NovaConfig::config->use_parity_for_sstable_data_blocks);
     }
 
-    if (NovaConfig::config->use_parity_for_sstable_data_blocks) {
+    if (NovaConfig::config->use_parity_for_sstable_data_blocks)
+    {
         NOVA_ASSERT(NovaConfig::config->number_of_sstable_data_replicas == 1);
         NOVA_ASSERT(NovaConfig::config->num_stocs_scatter_data_blocks > 1);
         NOVA_ASSERT(NovaConfig::config->num_stocs_scatter_data_blocks +
-                    NovaConfig::config->number_of_sstable_metadata_replicas + 1 <=
+                        NovaConfig::config->number_of_sstable_metadata_replicas + 1 <=
                     NovaConfig::config->cfgs[0]->stoc_servers.size());
     }
-    for (int i = 0; i < NovaConfig::config->cfgs.size(); i++) {
+    for (int i = 0; i < NovaConfig::config->cfgs.size(); i++)
+    {
         auto cfg = NovaConfig::config->cfgs[i];
         NOVA_ASSERT(FLAGS_ltc_num_stocs_scatter_data_blocks <= cfg->stoc_servers.size()) << fmt::format(
-                    "Not enough stoc to scatter. Scatter width: {} Num StoCs: {}",
-                    FLAGS_ltc_num_stocs_scatter_data_blocks, cfg->stoc_servers.size());
+            "Not enough stoc to scatter. Scatter width: {} Num StoCs: {}",
+            FLAGS_ltc_num_stocs_scatter_data_blocks, cfg->stoc_servers.size());
         NOVA_ASSERT(FLAGS_num_sstable_replicas <= cfg->stoc_servers.size()) << fmt::format(
-                    "Not enough stoc to replicate sstables. Replication factor: {} Num StoCs: {}",
-                    FLAGS_num_sstable_replicas, cfg->stoc_servers.size());
+            "Not enough stoc to replicate sstables. Replication factor: {} Num StoCs: {}",
+            FLAGS_num_sstable_replicas, cfg->stoc_servers.size());
     }
     StartServer();
     return 0;

@@ -1,6 +1,6 @@
 #!/bin/bash
-home_dir="/proj/bg-PG0/haoyu"
-# home_dir="/proj/BG/haoyu"
+home_dir="/proj/bg-PG0/bobbai"
+# home_dir="/proj/BG/bobbai"
 config_dir="$home_dir/config"
 db_dir="$home_dir/db"
 script_dir="$home_dir/scripts"
@@ -85,7 +85,7 @@ function run_bench() {
 	n=0
 	while [ $n -lt $nclients ]
 	do
-		id=$((nmachines-1-i))
+		id=$((i))
 		# if [[ $id == "9" ]]; then
 		# 	i=$((i+1))
 		# 	continue	
@@ -227,7 +227,7 @@ function run_bench() {
 	sleep 10
 	sleep_time=0
 	stop="false"
-	max_wait_time=$((maxexecutiontime+1200))
+	max_wait_time=$((maxexecutiontime+3600))
 	for m in ${clis[@]}
 	do
 		while ssh -oStrictHostKeyChecking=no $m "ps -ef | grep -v \"grep --color=auto ycsb\" | grep -v ssh | grep -v bash | grep ycsb | grep -c java"
@@ -326,7 +326,7 @@ scatter_policy="power_of_two"
 ltc_num_stocs_scatter_data_blocks="1"
 max_stoc_file_size_mb="18432"
 
-level="6"
+level="2"
 memtable_size_mb="16"
 sstable_size_mb="16"
 use_local_disk="false"
@@ -342,9 +342,9 @@ major_compaction_type="sc"
 major_compaction_max_parallism="32"
 major_compaction_max_tables_in_a_set="20"
 
-nmachines="7"
-nservers="6"
-number_of_ltcs="3"
+nmachines="2"
+nservers="2"
+number_of_ltcs="1"
 
 maxexecutiontime=1200
 nclients="1"
@@ -353,8 +353,7 @@ zipfianconstant="0.99"
 workload="workloadw"
 nclients_per_server="1"
 nthreads="512"
-
+debug="false"
 run_bench
 
-
-python /proj/bg-PG0/haoyu/scripts/parse_ycsb_nova_leveldb.py $nmachines $exp_results_dir > stats_tutorial_out
+python /proj/bg-PG0/bobbai/scripts/parse_ycsb_nova_leveldb.py $nmachines $exp_results_dir > stats_tutorial_out

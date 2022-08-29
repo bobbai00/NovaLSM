@@ -1,5 +1,5 @@
 #!/bin/bash
-basedir="/proj/bg-PG0/haoyu"
+basedir="/proj/bg-PG0/bobbai"
 
 export DEBIAN_FRONTEND=noninteractive
 

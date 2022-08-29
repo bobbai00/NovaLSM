@@ -1,6 +1,6 @@
 #!/bin/bash
 
-basedir="/proj/bg-PG0/haoyu"
+basedir="/proj/bg-PG0/bobbai"
 numServers=$1
 prefix="h"
 
