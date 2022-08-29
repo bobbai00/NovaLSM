@@ -26,3 +26,4 @@ nova_mem_server
 nova_mc_test
 
 ycsb/YCSB_C.cbp
+build/
